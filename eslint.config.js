@@ -41,7 +41,7 @@ export default defineConfig([
       ...reactHooks.configs["recommended-latest"].rules, // Use recommended rules for React Hooks
       ...reactRefresh.configs.vite.rules, // Use rules for React Refresh
       "no-unused-vars": "warn", // Warn on unused variables
-      "react/propt-types": "off", // Disable prop-types rule as we use TypeScript
+      "react/prop-types": "off", // Disable prop-types rule as we use TypeScript
     },
   },
 ])
