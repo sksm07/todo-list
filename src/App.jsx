@@ -1,5 +1,6 @@
 import './App.css'
 import {useState} from "react"
+import { v4 as uuidv4 } from 'uuid';
 import TodoList from './TodoList.jsx'
 import TodoForm from './TodoForm.jsx'
 
@@ -9,19 +10,24 @@ function App() {
   function addTodo(title){
     const newTodo = {
        title: title,
-       id: Date.now(),
+       //id: Date.now(),
+       id: uuidv4(),
        isCompleted: false
     }
 
     setTodoList([...todoList, newTodo])
+    console.log(todoList)
   }
 
   function completeTodo(id){
     const updatedTodos = todoList.map((todo)=>{
-      if(todo.id===id) {
-        return {...todo, isCompleted: true}; 
-      } 
-         return todo;      
+      // if(todo.id===id) {
+      //   return {...todo, isCompleted: true}; 
+      // }
+      // return todo;
+
+      return (todo.id===id) ? {...todo, isCompleted: true} : todo ;      
+               
     });
     setTodoList(updatedTodos)
   }
