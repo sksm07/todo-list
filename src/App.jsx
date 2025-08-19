@@ -16,7 +16,7 @@ function App() {
     }
 
     setTodoList([...todoList, newTodo])
-    console.log(todoList)
+    //console.log(todoList)
   }
 
   function completeTodo(id){
@@ -41,7 +41,7 @@ function App() {
       })
       setTodoList(updatedTodos)
   }
-
+  //console.log(todoList)
   return (
     <div>
       <h1>My Todos</h1>
