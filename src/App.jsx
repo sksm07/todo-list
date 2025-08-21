@@ -1,8 +1,8 @@
 import './App.css'
 import {useState} from "react"
 import { v4 as uuidv4 } from 'uuid';
-import TodoList from './TodoList.jsx'
-import TodoForm from './TodoForm.jsx'
+import TodoList from './features/TodoList/TodoList.jsx'
+import TodoForm from './features/TodoForm.jsx'
 
 function App() {
   const [todoList, setTodoList] = useState([])
@@ -16,7 +16,7 @@ function App() {
     }
 
     setTodoList([...todoList, newTodo])
-    console.log(todoList)
+    //console.log(todoList)
   }
 
   function completeTodo(id){
@@ -32,11 +32,21 @@ function App() {
     setTodoList(updatedTodos)
   }
 
+  function updateTodo(editedTodo) {
+      const updatedTodos = todoList.map((todo) => {
+        if(todo.id === editedTodo.id) {
+          return {...editedTodo}
+        }
+        return todo;
+      })
+      setTodoList(updatedTodos)
+  }
+  //console.log(todoList)
   return (
     <div>
       <h1>My Todos</h1>
       <TodoForm onAddTodo={addTodo} />
-      <TodoList todos={todoList} onCompleteTodo={completeTodo} />      
+      <TodoList todos={todoList} onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} />      
     </div>
   )
 }
