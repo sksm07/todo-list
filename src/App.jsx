@@ -54,8 +54,9 @@ function App() {
   }, [])
 
 
-  const addTodo = async (newTodo) => {
-
+  const addTodo = async (title) => {
+    //console.log(newTodo)
+    const newTodo = {title, isCompleted: false}
     const payload = {
       records: [
         {
