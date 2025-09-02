@@ -1,6 +1,6 @@
 function TodosViewForm ({sortDirection, setSortDirection, 
                         sortField, setSortField, queryString, setQueryString}) {
-    function preventRefresh(){
+    function preventRefresh(event){
         event.preventDefault()
     }
     return (

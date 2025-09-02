@@ -18,8 +18,8 @@ function App() {
   const encodeUrl = ({sortField, sortDirection, queryString}) => {
     let searchQuery = "";
     let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
-    if(searchQuery){searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;}
-    return encodeURI(`${url}?${sortQuery}?${searchQuery}`);
+    if(queryString){searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;}
+    return encodeURI(`${url}?${sortQuery}&${searchQuery}`);
   }
 
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
@@ -63,7 +63,7 @@ function App() {
 
     };
     fetchTodos();
-  }, [sortDirection,sortField])
+  }, [sortDirection,sortField,queryString])
 
 
   const addTodo = async (title) => {
