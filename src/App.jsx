@@ -1,5 +1,5 @@
 import './App.css'
-import {useState, useEffect} from "react"
+import {useState, useEffect, useCallback} from "react"
 import { v4 as uuidv4 } from 'uuid';
 import TodoList from './features/TodoList/TodoList.jsx'
 import TodoForm from './features/TodoForm.jsx'
@@ -15,12 +15,12 @@ function App() {
   const [sortDirection, setSortDirection] = useState("desc");
   const [queryString, setQueryString] = useState("");
 
-  const encodeUrl = ({sortField, sortDirection, queryString}) => {
+  const encodeUrl = useCallback(()=>{
     let searchQuery = "";
     let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
     if(queryString){searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;}
     return encodeURI(`${url}?${sortQuery}&${searchQuery}`);
-  }
+  },[sortField, sortDirection, queryString]);
 
   const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
   const token = `Bearer ${import.meta.env.VITE_PAT}`;
@@ -35,7 +35,7 @@ function App() {
         },
       }
       try {
-        const resp = await fetch(encodeUrl({sortField, sortDirection, queryString}), options)
+        const resp = await fetch(encodeUrl(), options)
         if(!resp.ok) {
           throw new Error(resp.message);
         }
@@ -91,7 +91,7 @@ function App() {
 
     try {
       setIsSaving(true);
-      const resp = await fetch(encodeUrl({sortField, sortDirection, queryString}), options);
+      const resp = await fetch(encodeUrl(), options);
       if(!resp.ok) {
         throw new Error("Error adding new todo...")
       }
@@ -144,7 +144,7 @@ function App() {
     }
 
     try {
-      const resp = await fetch(encodeUrl({sortField, sortDirection, queryString}), options);
+      const resp = await fetch(encodeUrl(), options);
       if (!resp.ok) {
         throw new Error(`Failed to complete todo: ${resp.statusText}`);
       }
@@ -195,7 +195,7 @@ function App() {
     };
 
     try {
-        const resp = await fetch(encodeUrl({sortField, sortDirection, queryString}), options);
+        const resp = await fetch(encodeUrl(), options);
         if (!resp.ok) {
             throw new Error(`Failed to update todo: ${resp.statusText}`);
         }
