@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import styled from "styled-components";
 
 function TodosViewForm ({sortDirection, setSortDirection, 
                         sortField, setSortField, queryString, setQueryString}) {
@@ -17,34 +18,55 @@ function TodosViewForm ({sortDirection, setSortDirection,
     },[localQueryString, setQueryString])
 
     return (
-        <form onSubmit={preventRefresh}>
+        <StyledForm onSubmit={preventRefresh}>
             <div>
                 <label>
                     Search todos
-                    <input type="text" value={localQueryString} 
+                    <StyledInput 
+                        type="text" 
+                        value={localQueryString} 
                         onChange={(e)=>{setLocalQueryString(e.target.value)}}
-                    ></input>
+                    ></StyledInput>
                 </label>
-                <button type="button" onClick={()=>setLocalQueryString("")}>Clear</button>
+                <StyledButton type="button" onClick={()=>setLocalQueryString("")}>Clear</StyledButton>
             </div>
             <div>
                 <label>
                     Sort by
-                    <select onChange={(event)=>{setSortField(event.target.value)}} value={sortField}>
+                    <StyledSelect onChange={(event)=>{setSortField(event.target.value)}} value={sortField}>
                         <option value="title">Title</option>
                         <option value="createdTime">Time added</option>
-                    </select>
+                    </StyledSelect>
                 </label>
                 <label>
                     Direction
-                    <select onChange={(event)=>{setSortDirection(event.target.value)}}>
+                    <StyledSelect onChange={(event)=>{setSortDirection(event.target.value)}}>
                         <option value="asc">Ascending</option>
                         <option value="desc">Descending</option>
-                    </select>
+                    </StyledSelect>
                 </label>
             </div>
-        </form>
+        </StyledForm>
     )
 }
 
 export default TodosViewForm;
+
+const StyledForm = styled.form`
+  padding: 0.5rem;  
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;      
+`;
+
+const StyledInput = styled.input`
+  padding: 0.25rem;
+`;
+
+const StyledSelect = styled.select`
+  padding: 0.25rem;
+`;
+
+const StyledButton = styled.button`
+  padding: 0.25rem;
+`;

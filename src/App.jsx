@@ -1,4 +1,5 @@
 import './App.css'
+import styles from './App.module.css'
 import {useState, useEffect, useCallback} from "react"
 import { v4 as uuidv4 } from 'uuid';
 import TodoList from './features/TodoList/TodoList.jsx'
@@ -216,7 +217,8 @@ function App() {
   
 
   return (
-    <div>
+    <div className={styles.appContainer}>
+      <div className={styles.appContent}>
       <h1>My Todos</h1>
       <TodoForm onAddTodo={addTodo} isSaving={isSaving} />
       <TodoList 
@@ -235,13 +237,13 @@ function App() {
           setQueryString={setQueryString}
       />
       {errorMessage && (
-            <div>
+            <div className={styles.errorMessage}>
               
               <p>{errorMessage}</p>
               <button onClick={()=>setErrorMessage("")}>Dismiss</button>
             </div>)
       }
-
+    </div>
     </div>
   )
 }
