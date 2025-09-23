@@ -14,13 +14,13 @@ import {
 
 
 function App() {
-  const [todoList, setTodoList] = useState([]);
+  /* const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [sortField, setSortField] = useState("createdTime");
   const [sortDirection, setSortDirection] = useState("desc");
-  const [queryString, setQueryString] = useState("");
+  const [queryString, setQueryString] = useState(""); */
 
   const [todoState, dispatch] = useReducer(todosReducer, initialTodosState);
 
@@ -112,8 +112,7 @@ function App() {
   }
 
   async function completeTodo(id){
-    const originalTodo = todoList.find((todo) => todo.id === id);
-    
+    const originalTodo = todoState.todoList.find((todo) => todo.id === id);
     dispatch({type: actions.completeTodo, id});
     dispatch({type: actions.startRequest});
 
@@ -159,7 +158,7 @@ function App() {
 
   async function updateTodo(editedTodo) {
 
-    const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
+    const originalTodo = todoState.todoList.find((todo) => todo.id === editedTodo.id);
     
     dispatch({type: actions.updateTodo, editedTodo});
     dispatch({type: actions.startRequest});
