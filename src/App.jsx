@@ -1,10 +1,16 @@
 import './App.css'
 import styles from './App.module.css'
-import {useState, useEffect, useCallback} from "react"
+import {useState, useEffect, useCallback, useReducer} from "react"
 import { v4 as uuidv4 } from 'uuid';
 import TodoList from './features/TodoList/TodoList.jsx'
 import TodoForm from './features/TodoForm.jsx'
 import TodosViewForm  from './features/TodosViewForm.jsx';
+import {
+  reducer as todosReducer,
+  actions as todoActions,
+  initialState as initialTodosState,
+  actions,
+} from './reducers/todos.reducer';
 
 
 function App() {
@@ -15,6 +21,8 @@ function App() {
   const [sortField, setSortField] = useState("createdTime");
   const [sortDirection, setSortDirection] = useState("desc");
   const [queryString, setQueryString] = useState("");
+
+  const [todoState, dispatch] = useReducer(todosReducer, initialTodosState);
 
   const encodeUrl = useCallback(()=>{
     let searchQuery = "";
@@ -28,7 +36,7 @@ function App() {
 
   useEffect(() => {
     const fetchTodos = async ()=> { 
-      setIsLoading(true);
+      dispatch({type: todoActions.fetchTodos})      
       const options = {
         method: "GET",
         headers: {
@@ -42,24 +50,16 @@ function App() {
         }
         const response = await resp.json();
         const {records} = response;
-        setTodoList(
-          records.map(record => {
-            const todoList = {
-              id: record.id,
-              ...record.fields,
-            };
-            if(!todoList.isCompleted){
-              todoList.isCompleted = false;
-            }
-            return todoList;
-          })
-        )
+        dispatch({
+          type: todoActions.loadTodos,
+          records,
+        });
       }
       catch(error) {
-        setErrorMessage(error.message)
-      }
-      finally {
-        setIsLoading(false)
+        dispatch({
+          type: todoActions.setLoadError,
+          error,
+        })
       }
 
     };
@@ -68,7 +68,7 @@ function App() {
 
 
   const addTodo = async (title) => {
-    //console.log(newTodo)
+
     const newTodo = {title, isCompleted: false}
     const payload = {
       records: [
@@ -91,38 +91,32 @@ function App() {
     }
 
     try {
-      setIsSaving(true);
+      dispatch({type: actions.startRequest})
       const resp = await fetch(encodeUrl(), options);
       if(!resp.ok) {
         throw new Error("Error adding new todo...")
       }
       const {records} = await resp.json();
       console.log(records);
-      const savedTodo = {
-        id: records[0].id,
-        ...records[0].fields,
-      }
-      if (!records[0].fields.isCompleted) {
-        savedTodo.isCompleted = false;
-      }
-      setTodoList(todoList=>[...todoList, savedTodo]);
+      
+      dispatch({type: actions.addTodo, records});
     } 
     catch(error){
       console.log(error);
-      setErrorMessage(error.message)
+      dispatch({type: actions.setLoadError, error})
     }
-    finally{setIsSaving(false)}       
+    finally{
+      dispatch({type: actions.endRequest})
+    }       
 
   }
 
   async function completeTodo(id){
     const originalTodo = todoList.find((todo) => todo.id === id);
-    const updatedTodos = todoList.map((todo)=>{
-        return (todo.id===id) ? {...todo, isCompleted: true} : todo ;      
-               
-    });
-    setTodoList(updatedTodos);
-    setIsSaving(true);
+    
+    dispatch({type: actions.completeTodo, id});
+    dispatch({type: actions.startRequest});
+
     const payload = {
       records: [
         {
@@ -151,15 +145,14 @@ function App() {
       }
     } catch (error) {
       console.error(error);
-      setErrorMessage(`${error.message}. Reverting todo...`);
-
-      const revertedTodos = todoList.map((todo) =>
-            todo.id === originalTodo.id ? originalTodo : todo
-      );
-      setTodoList(revertedTodos);
-
+      
+      dispatch({
+        type: actions.revertTodo,
+        originalTodo,
+        error,
+      });
     } finally{
-        setIsSaving(false);
+        dispatch({type: actions.endRequest});
       }
 
   }
@@ -167,11 +160,9 @@ function App() {
   async function updateTodo(editedTodo) {
 
     const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
-    const updatedTodos = todoList.map((todo) =>
-        todo.id === editedTodo.id ? { ...editedTodo } : todo
-    );
-    setTodoList(updatedTodos);
-    setIsSaving(true);
+    
+    dispatch({type: actions.updateTodo, editedTodo});
+    dispatch({type: actions.startRequest});
     
     const payload = {
         records: [
@@ -203,27 +194,25 @@ function App() {
         
     } catch (error) {
         console.error(error);
-        setErrorMessage(`${error.message}. Reverting todo...`);
-        
-        const revertedTodos = todoList.map((todo) =>
-            todo.id === originalTodo.id ? originalTodo : todo
-        );
-        setTodoList(revertedTodos);
+        dispatch({
+          type: actions.revertTodo,
+          originalTodo,
+          error,
+        });
       } finally {
-        setIsSaving(false);
+        dispatch({type: actions.endRequest});
       }
-  }
-
+  }  
   
 
   return (
     <div className={styles.appContainer}>
       <div className={styles.appContent}>
       <h1>My Todos</h1>
-      <TodoForm onAddTodo={addTodo} isSaving={isSaving} />
+      <TodoForm onAddTodo={addTodo} isSaving={todoState.isSaving} />
       <TodoList 
-          loadingStatus={isLoading} 
-          todos={todoList} 
+          loadingStatus={todoState.isLoading} 
+          todos={todoState.todoList} 
           onCompleteTodo={completeTodo} 
           onUpdateTodo={updateTodo} 
       />
@@ -236,11 +225,13 @@ function App() {
           queryString={queryString}
           setQueryString={setQueryString}
       />
-      {errorMessage && (
+      {todoState.errorMessage && (
             <div className={styles.errorMessage}>
               
-              <p>{errorMessage}</p>
-              <button onClick={()=>setErrorMessage("")}>Dismiss</button>
+              <p>{todoState.errorMessage}</p>
+              <button onClick={()=>dispatch({type: actions.clearError})}>
+                Dismiss
+              </button>
             </div>)
       }
     </div>
